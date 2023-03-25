@@ -30,7 +30,7 @@ namespace PdfWatcher
 
         public void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            FilePath = e.FullPath;
+            FInfo = new FileInfo(e.FullPath);
         }
 
         private FileSystemWatcher _watcher;
@@ -38,6 +38,18 @@ namespace PdfWatcher
         {
             get => _watcher;
             set => SetValue(ref _watcher, value);
+        }
+
+        private FileInfo _fInfo;
+        public FileInfo FInfo
+        {
+            get => _fInfo;
+            set { 
+                if (SetValue(ref _fInfo, value))
+                {
+                    NotifyPropertyChanged(nameof(FileUri));
+                }
+            }
         }
 
         private string _folder;
@@ -53,19 +65,19 @@ namespace PdfWatcher
             }
         }
 
-        private string _filePath;
-        public string FilePath
-        {
-            get => _filePath;
-            set
-            {
-                if (SetValue(ref _filePath, value))
-                {
-                    NotifyPropertyChanged(nameof(FileName));
-                    NotifyPropertyChanged(nameof(ViewerUri));
-                }
-            }
-        }
+        //private string _filePath;
+        //public string FilePath
+        //{
+        //    get => _filePath;
+        //    set
+        //    {
+        //        if (SetValue(ref _filePath, value))
+        //        {
+        //            NotifyPropertyChanged(nameof(FileName));
+        //            NotifyPropertyChanged(nameof(FileUri));
+        //        }
+        //    }
+        //}
 
         private Status _folderStatus;
         public Status FolderStatus
@@ -74,23 +86,23 @@ namespace PdfWatcher
             set => SetValue(ref _folderStatus, value);
         }
 
-        public string? FileName
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(FilePath))
-                    return Path.GetFileName(FilePath);
-                else
-                    return null;
-            }
-        }
+        //public string? FileName
+        //{
+        //    get
+        //    {
+        //        if (!string.IsNullOrEmpty(FilePath))
+        //            return Path.GetFileName(FilePath);
+        //        else
+        //            return null;
+        //    }
+        //}
 
-        public Uri ViewerUri
+        public Uri FileUri
         {
             get
             {
-                if (FileName != null)
-                    return new Uri(FilePath);
+                if (FInfo != null)
+                    return new Uri(FInfo.FullName);
                 else
                     return new Uri("about:blank");
             }
@@ -98,10 +110,8 @@ namespace PdfWatcher
 
         private void ChangeFolder()
         {
-            if (string.IsNullOrEmpty(Folder) || !Directory.Exists(Folder))
-                FolderStatus.SetStatus(false);
-            else
-                FolderStatus.SetStatus(true);
+            if (!string.IsNullOrEmpty(Folder) && Directory.Exists(Folder) && Watcher != null)
+                Watcher.Path = Folder;
         }
     }
 

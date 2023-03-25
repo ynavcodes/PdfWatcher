@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using System.Windows.Forms;
 using Application = System.Windows.Application;
 using System.IO;
@@ -30,19 +17,19 @@ namespace PdfWatcher
             InitializeComponent();
 
             DataContext = new PdfWatcherViewModel();
-            _vm = new PdfWatcherViewModel();
+            _vm = (PdfWatcherViewModel)DataContext;
             _vm.Watcher.Changed += Watcher_Changed;
 
-            pdfViewer.Navigate(_vm.ViewerUri);
+            pdfViewer.Navigate(_vm.FileUri);
         }
 
-        private void Watcher_Changed(object sender, System.IO.FileSystemEventArgs e)
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            if (_vm.FilePath != null)
+            if (_vm.FInfo != null)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    pdfViewer.Navigate(_vm.ViewerUri);
+                    pdfViewer.Navigate(_vm.FileUri);
                 });
             }
         }
@@ -58,6 +45,11 @@ namespace PdfWatcher
                     _vm.Folder = fbd.SelectedPath;
                 }
             }
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+
         }
     }
 }

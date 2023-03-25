@@ -14,15 +14,23 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid>
-            
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
+
             <Label Content="Folder:"/>
-            <Label Grid.Column="1" Foreground="{Binding FolderStatus.StatusColor}" FontWeight="Bold" Content="{Binding Folder, NotifyOnSourceUpdated=True}"/>
+
+            <TextBlock Grid.Column="1" Margin="5">
+                <Hyperlink NavigateUri="{Binding Folder}" RequestNavigate="Hyperlink_RequestNavigate">
+                    <TextBlock Text="{Binding Folder}"/>
+                </Hyperlink>
+            </TextBlock>
+
+
+            <!--<Label Grid.Column="1" Foreground="{Binding FolderStatus.StatusColor}" FontWeight="Bold" Content="{Binding Folder}"/>-->
             <Button Grid.Column="2" Margin="5" Content="Change Folder" Click="btChangeFolder_Click"/>
         </Grid>
 
@@ -39,14 +47,14 @@
             </WebBrowser.Style>
         </WebBrowser>
         <Label Grid.Row="1" Content="{Binding FolderStatus.Text}" Panel.ZIndex="1" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"/>
-        
-        
+
+
         <StatusBar Grid.Row="2">
             <StatusBarItem>
-                <Label Content="{Binding FileName}"/>
+                <Label Content="{Binding FInfo.Name}"/>
             </StatusBarItem>
-            <StatusBarItem>
-
+            <StatusBarItem HorizontalAlignment="Right">
+                <Label Content="{Binding FInfo.CreationTime}"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>
