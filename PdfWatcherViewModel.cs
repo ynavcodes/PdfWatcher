@@ -1,39 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace PdfWatcher
 {
-    public class PdfWatcherViewModel : INotifyPropertyChanged
+    public class PdfWatcherViewModel : NotifyBase
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        public bool SetValue<T>(ref T currentValue, T newValue, [CallerMemberName] string? propertyName = null)
-        {
-            if (currentValue == null || !currentValue.Equals(newValue) || !string.IsNullOrEmpty(propertyName))
-            {
-                if (newValue == null)
-                    return false;
-
-                currentValue = newValue;
-                if (propertyName != null)
-                    NotifyPropertyChanged(propertyName);
-                return true;
-            }
-
-            return false;
-        }
-
         public PdfWatcherViewModel()
         {
+            FolderStatus = new Status();
             Folder = AppDomain.CurrentDomain.BaseDirectory;
 
             Watcher = new FileSystemWatcher
@@ -66,7 +47,9 @@ namespace PdfWatcher
             set
             {
                 if (SetValue(ref _folder, value))
+                {
                     ChangeFolder();
+                }
             }
         }
 
@@ -77,8 +60,18 @@ namespace PdfWatcher
             set
             {
                 if (SetValue(ref _filePath, value))
+                {
                     NotifyPropertyChanged(nameof(FileName));
+                    NotifyPropertyChanged(nameof(ViewerUri));
+                }
             }
+        }
+
+        private Status _folderStatus;
+        public Status FolderStatus
+        {
+            get => _folderStatus;
+            set => SetValue(ref _folderStatus, value);
         }
 
         public string? FileName
@@ -92,9 +85,68 @@ namespace PdfWatcher
             }
         }
 
+        public Uri ViewerUri
+        {
+            get
+            {
+                if (FileName != null)
+                    return new Uri(FilePath);
+                else
+                    return new Uri("about:blank");
+            }
+        }
+
         private void ChangeFolder()
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(Folder) || !Directory.Exists(Folder))
+                FolderStatus.SetStatus(false);
+            else
+                FolderStatus.SetStatus(true);
+        }
+    }
+
+    public class Status : NotifyBase
+    {
+        public Status()
+        {
+            StatusColor = Brushes.Green;
+            Valid = true;
+        }
+
+        public void SetStatus(bool valid)
+        {
+            Valid = valid;
+            if (Valid)
+            {
+                StatusColor = Brushes.Black;
+                Text = "";
+            }
+            else
+            {
+                StatusColor = Brushes.Red;
+                Text = "Invalid Folder.";
+            }
+        }
+
+        private Brush _statusColor;
+        public Brush StatusColor
+        {
+            get => _statusColor;
+            set => SetValue(ref _statusColor, value);
+        }
+
+        private string? _text;
+        public string? Text
+        {
+            get => _text;
+            set => SetValue(ref _text, value);
+        }
+
+        private bool _valid;
+        public bool Valid
+        {
+            get => _valid;
+            set => SetValue(ref _valid, value);
         }
     }
 }

@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Forms;
+using Application = System.Windows.Application;
+using System.IO;
 
 namespace PdfWatcher
 {
@@ -28,8 +31,33 @@ namespace PdfWatcher
 
             DataContext = new PdfWatcherViewModel();
             _vm = new PdfWatcherViewModel();
+            _vm.Watcher.Changed += Watcher_Changed;
 
-            
+            pdfViewer.Navigate(_vm.ViewerUri);
+        }
+
+        private void Watcher_Changed(object sender, System.IO.FileSystemEventArgs e)
+        {
+            if (_vm.FilePath != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    pdfViewer.Navigate(_vm.ViewerUri);
+                });
+            }
+        }
+
+        private void btChangeFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(fbd.SelectedPath) && Directory.Exists(fbd.SelectedPath))
+                {
+                    _vm.Folder = fbd.SelectedPath;
+                }
+            }
         }
     }
 }
