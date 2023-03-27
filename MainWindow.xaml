@@ -24,11 +24,10 @@
             <Label Content="Folder:"/>
 
             <TextBlock Grid.Column="1" Margin="5">
-                <Hyperlink NavigateUri="{Binding Folder}" RequestNavigate="Hyperlink_RequestNavigate">
+                <Hyperlink Click="Folder_Click">
                     <TextBlock Text="{Binding Folder}"/>
                 </Hyperlink>
             </TextBlock>
-
 
             <!--<Label Grid.Column="1" Foreground="{Binding FolderStatus.StatusColor}" FontWeight="Bold" Content="{Binding Folder}"/>-->
             <Button Grid.Column="2" Margin="5" Content="Change Folder" Click="btChangeFolder_Click"/>
@@ -39,14 +38,14 @@
             <WebBrowser.Style>
                 <Style TargetType="WebBrowser">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding FolderStatus.Valid}" Value="false">
+                        <DataTrigger Binding="{Binding ShowNoPdfText}" Value="true">
                             <Setter Property="Visibility" Value="Hidden"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </WebBrowser.Style>
         </WebBrowser>
-        <Label Grid.Row="1" Content="{Binding FolderStatus.Text}" Panel.ZIndex="1" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"/>
+        <Label Grid.Row="1" Content="No pdf has been saved." Panel.ZIndex="1" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"/>
 
 
         <StatusBar Grid.Row="2">
@@ -54,7 +53,7 @@
                 <Label Content="{Binding FInfo.Name}"/>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
-                <Label Content="{Binding FInfo.CreationTime}"/>
+                <Label Content="{Binding FInfo.LastWriteTime, StringFormat='{}{0:dd.MM.yyyy hh:mm}'}"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

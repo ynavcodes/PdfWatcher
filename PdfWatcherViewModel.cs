@@ -14,37 +14,19 @@ namespace PdfWatcher
     {
         public PdfWatcherViewModel()
         {
-            FolderStatus = new Status();
-            Folder = AppDomain.CurrentDomain.BaseDirectory;
-
-            Watcher = new FileSystemWatcher
-            {
-                Path = Folder,
-                NotifyFilter = NotifyFilters.LastWrite,
-                Filter = "*.pdf",
-                EnableRaisingEvents = true
-            };
-
-            Watcher.Changed += Watcher_Changed;
-        }
-
-        public void Watcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            FInfo = new FileInfo(e.FullPath);
-        }
-
-        private FileSystemWatcher _watcher;
-        public FileSystemWatcher Watcher
-        {
-            get => _watcher;
-            set => SetValue(ref _watcher, value);
+            var folderSettings = UserSettings.Default.Folder;
+            if (!string.IsNullOrEmpty(folderSettings))
+                Folder = folderSettings;
+            else
+                Folder = AppDomain.CurrentDomain.BaseDirectory;
         }
 
         private FileInfo _fInfo;
         public FileInfo FInfo
         {
             get => _fInfo;
-            set { 
+            set
+            {
                 if (SetValue(ref _fInfo, value))
                 {
                     NotifyPropertyChanged(nameof(FileUri));
@@ -56,46 +38,10 @@ namespace PdfWatcher
         public string Folder
         {
             get => _folder;
-            set
-            {
-                if (SetValue(ref _folder, value))
-                {
-                    ChangeFolder();
-                }
-            }
+            set => SetValue(ref _folder, value);
         }
 
-        //private string _filePath;
-        //public string FilePath
-        //{
-        //    get => _filePath;
-        //    set
-        //    {
-        //        if (SetValue(ref _filePath, value))
-        //        {
-        //            NotifyPropertyChanged(nameof(FileName));
-        //            NotifyPropertyChanged(nameof(FileUri));
-        //        }
-        //    }
-        //}
-
-        private Status _folderStatus;
-        public Status FolderStatus
-        {
-            get => _folderStatus;
-            set => SetValue(ref _folderStatus, value);
-        }
-
-        //public string? FileName
-        //{
-        //    get
-        //    {
-        //        if (!string.IsNullOrEmpty(FilePath))
-        //            return Path.GetFileName(FilePath);
-        //        else
-        //            return null;
-        //    }
-        //}
+        public string WatcherFolder { get => GetDirectory(Folder); }
 
         public Uri FileUri
         {
@@ -108,55 +54,19 @@ namespace PdfWatcher
             }
         }
 
-        private void ChangeFolder()
+        private string GetDirectory(string folder)
         {
-            if (!string.IsNullOrEmpty(Folder) && Directory.Exists(Folder) && Watcher != null)
-                Watcher.Path = Folder;
-        }
-    }
-
-    public class Status : NotifyBase
-    {
-        public Status()
-        {
-            StatusColor = Brushes.Green;
-            Valid = true;
-        }
-
-        public void SetStatus(bool valid)
-        {
-            Valid = valid;
-            if (Valid)
-            {
-                StatusColor = Brushes.Black;
-                Text = "";
-            }
+            if (!folder.EndsWith("\\"))
+                return folder + "\\";
             else
-            {
-                StatusColor = Brushes.Red;
-                Text = "Invalid Folder.";
-            }
+                return folder;
         }
 
-        private Brush _statusColor;
-        public Brush StatusColor
+        private bool _showNoPdfText;
+        public bool ShowNoPdfText
         {
-            get => _statusColor;
-            set => SetValue(ref _statusColor, value);
-        }
-
-        private string? _text;
-        public string? Text
-        {
-            get => _text;
-            set => SetValue(ref _text, value);
-        }
-
-        private bool _valid;
-        public bool Valid
-        {
-            get => _valid;
-            set => SetValue(ref _valid, value);
+            get => _showNoPdfText;
+            set => SetValue(ref _showNoPdfText, value);
         }
     }
 }
